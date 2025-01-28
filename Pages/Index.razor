@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject IHttpClientFactory HttpClientFactory
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @using StripeBlazorApp.Models
@@ -22,7 +23,8 @@
 
     private async Task Checkout(Product product)
     {
-        var response = await Http.PostAsJsonAsync("api/payments/create-checkout-session", product);
+        var client = HttpClientFactory.CreateClient("DefaultClient");
+        var response = await client.PostAsJsonAsync("api/payments/create-checkout-session", product);
         var result = await response.Content.ReadFromJsonAsync<StripeSessionResponse>();
 
         if (!string.IsNullOrEmpty(result?.SessionUrl))

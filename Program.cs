@@ -7,8 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddHttpClient(); // Add HttpClient service
-builder.Services.AddScoped<StripeService>(); // Register StripeService
+builder.Services.AddHttpClient("DefaultClient", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5291/");
+});
+builder.Services.AddScoped<StripeService>(); 
 
 var app = builder.Build();
 
