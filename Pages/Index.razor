@@ -23,13 +23,27 @@
 
     private async Task Checkout(Product product)
     {
-        var client = HttpClientFactory.CreateClient("DefaultClient");
-        var response = await client.PostAsJsonAsync("api/payments/create-checkout-session", product);
-        var result = await response.Content.ReadFromJsonAsync<StripeSessionResponse>();
-
-        if (!string.IsNullOrEmpty(result?.SessionUrl))
+        try
         {
-            NavigationManager.NavigateTo(result.SessionUrl, true);
+            var client = HttpClientFactory.CreateClient("DefaultClient");
+            var response = await client.PostAsJsonAsync("api/payments/create-checkout-session", product);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Request failed with status code {response.StatusCode}");
+                return;
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<StripeSessionResponse>();
+
+            if (!string.IsNullOrEmpty(result?.SessionUrl))
+            {
+                NavigationManager.NavigateTo(result.SessionUrl, true);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during checkout: {ex.Message}");
         }
     }
 }
