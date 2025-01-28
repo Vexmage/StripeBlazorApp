@@ -1,9 +1,36 @@
 ﻿@page "/"
+@inject HttpClient Http
 
-<PageTitle>Index</PageTitle>
+<h3>Products</h3>
 
-<h1>Hello, world!</h1>
+@foreach (var product in Products)
+{
+    <div>
+        <p>@product.Name - $@product.Price</p>
+        <button @onclick="() => Checkout(product)">Buy Now</button>
+    </div>
+}
 
-Welcome to your new app.
+@code {
+    private List<Product> Products = new List<Product>
+    {
+        new Product { Name = "Product A", Price = 20.00m },
+        new Product { Name = "Product B", Price = 30.00m }
+    };
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    private async Task Checkout(Product product)
+    {
+        var response = await Http.PostAsJsonAsync("api/payments/create-checkout-session", product);
+        var result = await response.Content.ReadFromJsonAsync<StripeSessionResponse>();
+
+        if (!string.IsNullOrEmpty(result?.SessionUrl))
+        {
+            NavigationManager.NavigateTo(result.SessionUrl, true);
+        }
+    }
+
+    private class StripeSessionResponse
+    {
+        public string SessionUrl { get; set; }
+    }
+}
