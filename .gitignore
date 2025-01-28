@@ -9,3 +9,6 @@ bin/
 obj/
 Debug/
 Release/
+
+# Ignore appsettings.json to protect sensitive data
+appsettings.json
