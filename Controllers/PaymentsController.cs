@@ -18,15 +18,17 @@ namespace StripeBlazorApp.Controllers
         [HttpPost("create-checkout-session")]
         public IActionResult CreateCheckoutSession([FromBody] StripeBlazorApp.Models.Product product)
         {
-            Console.WriteLine($"Received Product: {product.Name}, Price: {product.Price}");
+            Console.WriteLine($"Received Product: {product?.Name}, Price: {product?.Price}");
 
-            if (string.IsNullOrEmpty(product.Name) || product.Price <= 0)
+            if (string.IsNullOrEmpty(product?.Name) || product.Price <= 0)
             {
+                Console.WriteLine("Invalid product data");
                 return BadRequest("Invalid product data");
             }
 
             var session = _stripeService.CreateCheckoutSession(product);
             return Ok(new { sessionUrl = session.Url });
         }
+
     }
 }

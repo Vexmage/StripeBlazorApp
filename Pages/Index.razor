@@ -25,12 +25,15 @@
     {
         try
         {
+            Console.WriteLine($"Sending Product: {product.Name}, Price: {product.Price}");
             var client = HttpClientFactory.CreateClient("DefaultClient");
             var response = await client.PostAsJsonAsync("api/payments/create-checkout-session", product);
 
             if (!response.IsSuccessStatusCode)
             {
                 Console.WriteLine($"Request failed with status code {response.StatusCode}");
+                var errorDetails = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error details: {errorDetails}");
                 return;
             }
 

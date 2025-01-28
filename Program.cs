@@ -9,7 +9,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient("DefaultClient", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5291/");
+    client.BaseAddress = new Uri("https://localhost:44386/"); // Ensure HTTPS matches server
 });
 builder.Services.AddScoped<StripeService>(); 
 
