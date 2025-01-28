@@ -42,7 +42,7 @@ namespace StripeBlazorApp.Services
                         {
                             Name = product.Name,
                         },
-                        UnitAmount = (long)(product.Price * 100), // Convert dollars to cents
+                        UnitAmount = (long)(product.Price * 100), // Ensure dollars are converted to cents
                     },
                     Quantity = 1,
                 },
@@ -52,15 +52,22 @@ namespace StripeBlazorApp.Services
                     CancelUrl = "https://localhost:44386/cancel",
                 };
 
+                Console.WriteLine("Session options created successfully.");
+
                 var service = new SessionService();
                 var session = service.Create(options);
 
-                Console.WriteLine($"Stripe session created successfully. Session ID: {session.Id}, URL: {session.Url}");
+                Console.WriteLine($"Stripe session created successfully: ID={session.Id}, URL={session.Url}");
                 return session;
+            }
+            catch (StripeException ex)
+            {
+                Console.WriteLine($"Stripe error: {ex.StripeError?.Message}, Type: {ex.StripeError?.Type}");
+                throw;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in Stripe session creation: {ex.Message}");
+                Console.WriteLine($"Unexpected error: {ex.Message}");
                 throw;
             }
         }

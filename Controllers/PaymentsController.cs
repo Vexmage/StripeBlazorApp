@@ -29,14 +29,16 @@ namespace StripeBlazorApp.Controllers
             try
             {
                 var session = _stripeService.CreateCheckoutSession(product);
+                Console.WriteLine($"Stripe session created successfully. Session URL: {session.Url}");
                 return Ok(new { sessionUrl = session.Url });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error while creating Stripe session: {ex.Message}");
-                return BadRequest("Failed to create Stripe session.");
+                return BadRequest($"Failed to create Stripe session: {ex.Message}");
             }
         }
+
 
 
     }

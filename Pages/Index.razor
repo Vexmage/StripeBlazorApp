@@ -26,7 +26,6 @@
         try
         {
             Console.WriteLine($"Sending Product: {product.Name}, Price: {product.Price}");
-
             var client = HttpClientFactory.CreateClient("DefaultClient");
             var response = await client.PostAsJsonAsync("api/payments/create-checkout-session", product);
 
