@@ -22,13 +22,22 @@ namespace StripeBlazorApp.Controllers
 
             if (string.IsNullOrEmpty(product?.Name) || product.Price <= 0)
             {
-                Console.WriteLine("Invalid product data");
-                return BadRequest("Invalid product data");
+                Console.WriteLine("Invalid product data received.");
+                return BadRequest("Invalid product data.");
             }
 
-            var session = _stripeService.CreateCheckoutSession(product);
-            return Ok(new { sessionUrl = session.Url });
+            try
+            {
+                var session = _stripeService.CreateCheckoutSession(product);
+                return Ok(new { sessionUrl = session.Url });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error while creating Stripe session: {ex.Message}");
+                return BadRequest("Failed to create Stripe session.");
+            }
         }
+
 
     }
 }
