@@ -1,6 +1,9 @@
 ﻿using Stripe;
 using Stripe.Checkout;
-using StripeBlazorApp.Models;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
+using StripeBlazorApp.Models; // Ensure this is included
 
 namespace StripeBlazorApp.Services
 {
@@ -10,17 +13,9 @@ namespace StripeBlazorApp.Services
 
         public StripeService(IConfiguration configuration)
         {
-            var secretKey = configuration["Stripe:SecretKey"];
-            Console.WriteLine($"Loaded Stripe Secret Key: {secretKey}");
-
-            if (string.IsNullOrEmpty(secretKey) || !secretKey.StartsWith("sk_test_"))
-            {
-                throw new InvalidOperationException("Stripe test secret key is missing or invalid.");
-            }
-
-            StripeConfiguration.ApiKey = secretKey;
+            _secretKey = configuration["Stripe:SecretKey"] ?? throw new InvalidOperationException("Stripe Secret Key is missing.");
+            StripeConfiguration.ApiKey = _secretKey;
         }
-
 
         public Session CreateCheckoutSession(StripeBlazorApp.Models.Product product)
         {
@@ -32,43 +27,41 @@ namespace StripeBlazorApp.Services
                 {
                     PaymentMethodTypes = new List<string> { "card" },
                     LineItems = new List<SessionLineItemOptions>
-            {
-                new SessionLineItemOptions
-                {
-                    PriceData = new SessionLineItemPriceDataOptions
                     {
-                        Currency = "usd",
-                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        new SessionLineItemOptions
                         {
-                            Name = product.Name,
+                            PriceData = new SessionLineItemPriceDataOptions
+                            {
+                                Currency = "usd",
+                                ProductData = new SessionLineItemPriceDataProductDataOptions
+                                {
+                                    Name = product.Name,
+                                },
+                                UnitAmount = (long)(product.Price * 100), // Convert to cents
+                            },
+                            Quantity = 1,
                         },
-                        UnitAmount = (long)(product.Price * 100), // Ensure dollars are converted to cents
                     },
-                    Quantity = 1,
-                },
-            },
                     Mode = "payment",
                     SuccessUrl = "https://localhost:44386/success",
                     CancelUrl = "https://localhost:44386/cancel",
                 };
 
-                Console.WriteLine("Session options created successfully.");
-
                 var service = new SessionService();
                 var session = service.Create(options);
 
-                Console.WriteLine($"Stripe session created successfully: ID={session.Id}, URL={session.Url}");
+                Console.WriteLine($"Stripe session created successfully. Session ID: {session.Id}, URL: {session.Url}");
                 return session;
             }
-            catch (StripeException ex)
+            catch (StripeException stripeEx)
             {
-                Console.WriteLine($"Stripe error: {ex.StripeError?.Message}, Type: {ex.StripeError?.Type}");
-                throw;
+                Console.WriteLine($"Stripe API Error: {stripeEx.Message}");
+                throw new Exception("Stripe API error: " + stripeEx.Message);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error: {ex.Message}");
-                throw;
+                Console.WriteLine($"General Error: {ex.Message}");
+                throw new Exception("General error: " + ex.Message);
             }
         }
     }

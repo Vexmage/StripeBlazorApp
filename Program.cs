@@ -1,21 +1,30 @@
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.DependencyInjection;
+using Stripe;
 using StripeBlazorApp.Services;
+using Microsoft.Extensions.Configuration;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args); // Initialize builder first
 
-// Add services to the container.
+// Load Stripe secret key from appsettings.json
+var stripeSettings = builder.Configuration.GetSection("Stripe");
+StripeConfiguration.ApiKey = stripeSettings["SecretKey"];
+
+Console.WriteLine($"🔹 STRIPE_SECRET_KEY Loaded: {StripeConfiguration.ApiKey}");
+
+// Register services
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddScoped<StripeService>();
 builder.Services.AddHttpClient("DefaultClient", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:44386/"); // Ensure HTTPS matches server
+    client.BaseAddress = new Uri("https://localhost:44386/");
 });
-builder.Services.AddScoped<StripeService>(); 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure middleware
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -24,7 +33,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
 app.MapBlazorHub();
