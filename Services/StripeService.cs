@@ -3,7 +3,7 @@ using Stripe.Checkout;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using StripeBlazorApp.Models; // Ensure this is included
+using StripeBlazorApp.Models; // Ensure correct namespace for Product model
 
 namespace StripeBlazorApp.Services
 {
@@ -13,13 +13,14 @@ namespace StripeBlazorApp.Services
 
         public StripeService(IConfiguration configuration)
         {
-            _secretKey = configuration["Stripe:SecretKey"] ?? throw new InvalidOperationException("Stripe Secret Key is missing.");
+            _secretKey = configuration["Stripe:SecretKey"]
+                ?? throw new InvalidOperationException("Stripe Secret Key is missing.");
             StripeConfiguration.ApiKey = _secretKey;
         }
 
-        public Session CreateCheckoutSession(StripeBlazorApp.Models.Product product)
+        public Session CreateCheckoutSession(StripeBlazorApp.Models.Product product) // Fully qualify Product
         {
-            Console.WriteLine($"Creating Stripe session for Product: {product.Name}, Price: {product.Price}");
+            Console.WriteLine($"✔️ Creating Stripe session for Product: {product.Name}, Price: {product.Price} USD");
 
             try
             {
@@ -37,7 +38,7 @@ namespace StripeBlazorApp.Services
                                 {
                                     Name = product.Name,
                                 },
-                                UnitAmount = (long)(product.Price * 100), // Convert to cents
+                                UnitAmount = Convert.ToInt64(product.Price * 100), // Convert dollars to cents
                             },
                             Quantity = 1,
                         },
@@ -50,17 +51,17 @@ namespace StripeBlazorApp.Services
                 var service = new SessionService();
                 var session = service.Create(options);
 
-                Console.WriteLine($"Stripe session created successfully. Session ID: {session.Id}, URL: {session.Url}");
+                Console.WriteLine($"✔️ Stripe session created successfully. Session ID: {session.Id}, URL: {session.Url}");
                 return session;
             }
             catch (StripeException stripeEx)
             {
-                Console.WriteLine($"Stripe API Error: {stripeEx.Message}");
+                Console.WriteLine($"❌ Stripe API Error: {stripeEx.Message}");
                 throw new Exception("Stripe API error: " + stripeEx.Message);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"General Error: {ex.Message}");
+                Console.WriteLine($"❌ General Error: {ex.Message}");
                 throw new Exception("General error: " + ex.Message);
             }
         }
