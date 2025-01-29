@@ -31,6 +31,29 @@ html, body {
     font-size: 1.5rem;
 }
 
+/* Light background nav links (MainLayout top bar) */
+.nav-link-light {
+    color: #333; /* Dark text for contrast on light background */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+    .nav-link-light:hover {
+        color: #007bff; /* Highlight color */
+    }
+
+/* Dark background nav links (NavMenu sidebar) */
+.nav-link-dark {
+    color: #fff; /* Light text for contrast on dark background */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+    .nav-link-dark:hover {
+        color: #17a2b8; /* Cyan highlight */
+    }
+
+
 /* Logo Styling */
 .logo {
     height: 50px;
